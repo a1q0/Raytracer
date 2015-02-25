@@ -9,26 +9,26 @@ import com.aikocraft.raytracer.Game;
 public class RenderEngine {
 	public static RenderEngine i;
 	public static float nearPlane = 0.0f;
-	public static float farPlane = 50f;
+	public static float farPlane = 256f;
 	public static int npw;
 	public static int nph;
 	
 	public static float fov;
 	
-	public Sphere s1 = new Sphere(new Vec3(-32, 0, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s2 = new Sphere(new Vec3(+32, 0, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s3 = new Sphere(new Vec3(0, -32, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s4 = new Sphere(new Vec3(0, +32, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s5 = new Sphere(new Vec3(0, 0, -32), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s6 = new Sphere(new Vec3(0, 0, +32), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s7 = new Sphere(new Vec3(0, 0, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s8 = new Sphere(new Vec3(1, 1, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s9 = new Sphere(new Vec3(-1, -1, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s1 = new Sphere(new Vec3(-128, 0, 0), 110f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000002f);
+	public Sphere s2 = new Sphere(new Vec3(+128, 0, 0), 110f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000002f);
+	public Sphere s3 = new Sphere(new Vec3(0, -128, 0), 110f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000002f);
+	public Sphere s4 = new Sphere(new Vec3(0, +128, 0), 110f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000002f);
+	public Sphere s5 = new Sphere(new Vec3(0, 0, -128), 110f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000002f);
+	public Sphere s6 = new Sphere(new Vec3(0, 0, +128), 110f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000002f);
+	public Sphere s7 = new Sphere(new Vec3(0, 0, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000035f);
+	public Sphere s8 = new Sphere(new Vec3(1, 1, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000035f);
+	public Sphere s9 = new Sphere(new Vec3(-1, -1, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()), 0.000000035f);
 
 	
-	public Plane p1 = new Plane();
+	public Plane p1 = new Plane(new Vec3(0.0f, 0.0f, 0.0f), 0.5f);
 	
-	public Light l1 = new Light(new Vec3(0, 0, 6), 0.0001f, 0.05f, 0.0f);
+	public Light l1 = new Light(new Vec3(0, 0, 6), 0.0f, 0.0f, 0.5f);
 	
 	public static ArrayList<Geometry> geoms = new ArrayList<Geometry>();
 	public static ArrayList<Light> lights = new ArrayList<Light>();
@@ -63,10 +63,7 @@ public class RenderEngine {
 	}
 
 	public void render() {	
-		l1.quadAtt = 0.01f;
-		l1.linAtt = 0.0f;
-		l1.constAtt = 1.0f;
-		
+		l1.linAtt = 0.05f;
 		RenderEngine.mainThread = Thread.currentThread();
 		Arrays.fill(pixels, 0x00000);		
 		
@@ -85,16 +82,13 @@ public class RenderEngine {
 					
 					for (int xp = 0; xp < npw/2; xp++)
 						for (int yp = 0; yp < nph/2; yp++)
-							pixels[xp + yp * npw] = rt1.pixels[xp + yp * npw/2];
-					
+							pixels[xp + yp * npw] = rt1.pixels[xp + yp * npw/2];	
 					for (int xp = npw/2; xp < npw; xp++)
 						for (int yp = 0; yp < nph/2; yp++)
 							pixels[xp + yp * npw] = rt2.pixels[(xp-npw/2) + yp * npw/2];	
-					
 					for (int xp = 0; xp < npw/2; xp++)
 						for (int yp = npw/2; yp < nph; yp++)
 							pixels[xp + yp * npw] = rt3.pixels[xp + (yp-nph/2) * npw/2];	
-					
 					for (int xp = npw/2; xp < npw; xp++)
 						for (int yp = npw/2; yp < nph; yp++)
 							pixels[xp + yp * npw] = rt4.pixels[(xp-npw/2) + (yp-nph/2) * npw/2];	

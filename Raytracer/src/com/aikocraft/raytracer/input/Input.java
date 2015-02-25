@@ -2,8 +2,7 @@ package com.aikocraft.raytracer.input;
 
 import com.aikocraft.raytracer.Game;
 
-public class Input {
-
+public class Input {	
 	public static final int K_ENTER = '\n';
 	public static final int K_BACK_SPACE = '\b';
 	public static final int K_TAB = '\t';
@@ -102,6 +101,12 @@ public class Input {
 	public static final int K_F11 = 0x7A;
 	public static final int K_F12 = 0x7B;
 
+	public static int mx;
+	public static int my;
+	
+	public static boolean clicking = false;
+	public static boolean focused = false;
+	
 	public static boolean getKey(int key) {
 		return Game.i.im.keys[key];
 	}

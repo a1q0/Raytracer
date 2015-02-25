@@ -20,10 +20,10 @@ public class Game extends JFrame implements Runnable {
 	private static final long serialVersionUID = 2674675373969411773L;
 
 	public static Game i;
-	int w = 640, h = 640;
 	
-	int res = 16;
 	
+	public int w = 640, h = 640;
+	public int res = 16;
 	int npw = (int) (w / res), nph = (int) (h / res);
 	
 	BufferedImage image = new BufferedImage(npw, nph, BufferedImage.TYPE_INT_RGB);
@@ -49,9 +49,12 @@ public class Game extends JFrame implements Runnable {
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		this.setResizable(false);
+		this.setAlwaysOnTop(true);
 		
 		im = new InputManager();
 		this.addKeyListener(im);
+		this.addMouseListener(im);
+		this.addMouseMotionListener(im);
 				
 		this.createBufferStrategy(1);
 		bs = this.getBufferStrategy();

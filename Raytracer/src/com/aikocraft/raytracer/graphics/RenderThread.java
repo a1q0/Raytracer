@@ -1,9 +1,5 @@
 package com.aikocraft.raytracer.graphics;
 
-import com.aikocraft.coffee.math.matrices.Mat4;
-import com.aikocraft.coffee.math.vectors.Vec3;
-import com.aikocraft.coffee.math.vectors.Vec4;
-
 public class RenderThread extends Thread {
 	public int x;
 	public int y;
@@ -18,7 +14,7 @@ public class RenderThread extends Thread {
 		this.y = y;
 	}
 	
-	public void run() {	
+	public void run() {			
 		synchronized (RenderEngine.i.lock) {
 			try {
 				RenderEngine.i.lock.wait();
@@ -29,35 +25,16 @@ public class RenderThread extends Thread {
 		
 		pixels = new int[RenderEngine.nph/2*RenderEngine.npw/2];
 		
-		while (running) {				
-			Vec3 rPos = Camera.pos.copy();
-			Vec3 rDir = Camera.dir.copy();			
+		while (running) {					
 			Ray r;
-			
-			float fovx = (float) (Math.PI / 4f);
-			float fovy = RenderEngine.npw / RenderEngine.nph * fovx;
-			double fovxTan = Math.tan(fovx);
-			double fovyTan = Math.tan(fovy);
 			
 			for (int lxp = 0; lxp < RenderEngine.npw/2; lxp++) {
 				for (int lyp = 0; lyp < RenderEngine.nph/2; lyp++) {											
 					int xp = lxp + RenderEngine.npw / 2 * x;
 					int yp = lyp + RenderEngine.nph / 2 * y;
-					
-					rDir = Camera.dir.copy();					
-					rPos = Camera.pos.copy();
-					
-					float xR = (float) (((2f * xp - RenderEngine.npw) / RenderEngine.npw) * fovxTan);
-					float yR = (float) (((2f * yp - RenderEngine.nph) / RenderEngine.nph) * fovyTan);
-									
-					rDir.set(new Vec3(xR, yR, 0.7f)).normalize();
-					
-					Mat4 rotMatY = new Mat4().rotationY((float) Math.toRadians(Camera.rot.y));
-					Vec4 rDir4 = rotMatY.mul(new Vec4(rDir.x, rDir.y, rDir.z, 0));
-					rDir.set(rDir4.x, rDir4.y, rDir4.z).normalize();
-					
-					r = new Ray(rPos, rDir);	
-					pixels[lxp + lyp * RenderEngine.npw/2] = r.getColor(); 
+										
+					r = Camera.getRay(xp, yp);	
+					pixels[lxp + lyp * RenderEngine.npw/2] = r.getColor(0); 
 				}
 			}
 			
