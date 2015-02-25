@@ -37,12 +37,13 @@ public class Light {
 				Sphere s1 = (Sphere) g1;
 				Sphere s2 = (Sphere) g2;
 				
-				if (pos.squaredDistance(s2.pos) > pos.squaredDistance(s1.pos))
+				if (pos.squaredDistance(s2.pos) >= pos.squaredDistance(s1.pos))
 					continue;
 				
 				Ray lightRay = new Ray(pos, point.copy().sub(pos).normalize());
 				
-				if (!lightRay.intersectFirst(g1, g2))
+				
+				if (lightRay.intersect(g2) && lightRay.intersect(g1) && lightRay.intersectFirst(g2, g1))
 					return true;
 			}
 		}		

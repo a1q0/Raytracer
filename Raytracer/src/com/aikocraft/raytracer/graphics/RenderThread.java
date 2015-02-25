@@ -32,10 +32,10 @@ public class RenderThread extends Thread {
 		while (running) {				
 			Vec3 rPos = Camera.pos.copy();
 			Vec3 rDir = Camera.dir.copy();			
+			Ray r;
+			
 			float fovx = (float) (Math.PI / 4f);
 			float fovy = RenderEngine.npw / RenderEngine.nph * fovx;
-			Ray r = new Ray(rPos, rDir);
-			
 			double fovxTan = Math.tan(fovx);
 			double fovyTan = Math.tan(fovy);
 			
@@ -45,15 +45,16 @@ public class RenderThread extends Thread {
 					int yp = lyp + RenderEngine.nph / 2 * y;
 					
 					rDir = Camera.dir.copy();					
+					rPos = Camera.pos.copy();
 					
-					float x = (float) (((2f * xp - RenderEngine.npw) / RenderEngine.npw) * fovxTan);
-					float y = (float) (((2f * yp - RenderEngine.nph) / RenderEngine.nph) * fovyTan);
+					float xR = (float) (((2f * xp - RenderEngine.npw) / RenderEngine.npw) * fovxTan);
+					float yR = (float) (((2f * yp - RenderEngine.nph) / RenderEngine.nph) * fovyTan);
 									
-					rDir.set(new Vec3(x, y, RenderEngine.nearPlane+0.9f));
+					rDir.set(new Vec3(xR, yR, 0.7f)).normalize();
 					
 					Mat4 rotMatY = new Mat4().rotationY((float) Math.toRadians(Camera.rot.y));
 					Vec4 rDir4 = rotMatY.mul(new Vec4(rDir.x, rDir.y, rDir.z, 0));
-					rDir.set(rDir4.x, rDir4.y, rDir4.z);
+					rDir.set(rDir4.x, rDir4.y, rDir4.z).normalize();
 					
 					r = new Ray(rPos, rDir);	
 					pixels[lxp + lyp * RenderEngine.npw/2] = r.getColor(); 

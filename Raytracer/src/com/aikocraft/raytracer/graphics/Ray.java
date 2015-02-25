@@ -6,27 +6,31 @@ public class Ray {
 	public Vec3 pos = new Vec3();
 	public Vec3 dir = new Vec3();
 	public float precision = 0.1f;
-	public float max = 15f;
-	private float previewPrecision = 0.05f;
-	private float screenshotPrecision = 0.01f; 
-	
+
 	public int xp, yp;
 
 	public int color = 0;
+
+	public Ray(Vec3 pos, Vec3 dir) {
+		this.pos.set(pos);
+		this.dir.set(dir);
+	}
 	
-	public int getColor() {
-		if (RenderEngine.screenshot)
-			precision = screenshotPrecision;
-		else 
-			precision = previewPrecision;
-		
+	public int getColor() {		
 		double zBuffer = 1000;
 		
 		for (Geometry g : RenderEngine.geoms) {
 			if (this.intersect(g)) {
 				Vec3 hitPos = getHitPos(g);
 				
-				if (zBuffer >= hitPos.squaredDistance(Camera.pos)) {
+				if (hitPos == null) {
+					continue;
+				} else {
+				}
+				
+				float dist = hitPos.squaredDistance(Camera.pos);
+				
+				if (zBuffer >  dist && dist > 0) {
 					zBuffer = hitPos.squaredDistance(Camera.pos);
 				
 					Vec3 finalLight = getFinalColor(hitPos, g);
@@ -41,10 +45,6 @@ public class Ray {
 		return color;
 	}
 	
-	public Ray(Vec3 pos, Vec3 dir) {
-		this.pos.set(pos);
-		this.dir.set(dir);
-	}
 
 	public boolean intersect(Geometry g) {
 		if (g instanceof Sphere)
@@ -52,37 +52,29 @@ public class Ray {
 		
 		return false;
 	}
-
-	private boolean intersectSphere(Sphere s) {
-		if (RenderEngine.screenshot)
-			precision = screenshotPrecision;
-		else 
-			precision = 0.5f;
-		
-		for (float t = RenderEngine.nearPlane; t < RenderEngine.farPlane; t+=precision) {
-			Vec3 tPos = dir.copy().normalize().mul(t).add(pos);
-			
-			if (s.isPointIn(tPos)) 
-				return true;
-		}
-		
-		return false;
-	}
 	
-	public boolean intersectGeometryAt(Geometry g, float t) {
-		if (g instanceof Sphere)
-			return intersectSphereAt((Sphere) g, t);
-		
-		return false;
-	}
+	private float a = -1, b = -1, c = -1, d = -1;
 
-	private boolean intersectSphereAt(Sphere s, float t) {		
-		Vec3 tPos = dir.copy().normalize().mul(t).add(pos);
+	private boolean intersectSphere(Sphere s) {		
+		Vec3 dist = dir.copy().normalize().mul(RenderEngine.farPlane-RenderEngine.nearPlane);
 		
-		if (s.isPointIn(tPos)) 
+		a = dist.x*dist.x + dist.y*dist.y + dist.z*dist.z;
+
+		b = 2*dist.x*(pos.x-s.pos.x) 
+		  + 2*dist.y*(pos.y-s.pos.y) 
+		  + 2*dist.z*(pos.z-s.pos.z);
+
+		c = (s.pos.x*s.pos.x + s.pos.y*s.pos.y + s.pos.z*s.pos.z)
+		  + (pos.x*pos.x + pos.y*pos.y + pos.z*pos.z) 
+		  + (-2.0f * (s.pos.x*pos.x + s.pos.y*pos.y + s.pos.z*pos.z))
+		  - s.r*s.r;
+		
+		d = (b*b) - (4*a*c);
+		
+		if (d > 0)
 			return true;
-		
-		return false;
+		else 
+			return false;
 	}
 	
 	private Vec3 getFinalColor(Vec3 point, Geometry g) {
@@ -127,35 +119,57 @@ public class Ray {
 		return light;
 	}
 
-	private Vec3 getHitPos(Geometry g) {
-		if (RenderEngine.screenshot)
-			precision = screenshotPrecision;
-		else 
-			precision = 0.5f;		
+	private Vec3 getHitPos(Geometry g) {		
+		Sphere s = (Sphere) g;
 		
-		for (float t = RenderEngine.nearPlane; t < RenderEngine.farPlane; t+=precision) {
-			Vec3 tPos = dir.copy().normalize().mul(t).add(pos);
-			
-			if (g.isPointIn(tPos)) 
-				return tPos;
-		}
+		Vec3 dist = dir.copy().normalize().mul(RenderEngine.farPlane-RenderEngine.nearPlane);
 		
-		return null;
+		if (a == -1)
+			a = dist.x*dist.x + dist.y*dist.y + dist.z*dist.z;
+
+		if (b == -1)
+			b = 2*dist.x*(pos.x-s.pos.x) 
+				+ 2*dist.y*(pos.y-s.pos.y) 
+				+ 2*dist.z*(pos.z-s.pos.z);
+
+		if (c == -1)
+			c = s.pos.x*s.pos.x + s.pos.y*s.pos.y + s.pos.z*s.pos.z 
+				+ pos.x*pos.x + pos.y*pos.y + pos.z*pos.z 
+				+ (-2 * (s.pos.x*pos.x + s.pos.y*pos.y + s.pos.z*pos.z))
+				- s.r*s.r;
+		
+		if (d == -1)
+			d = (b*b) - (4*a*c);
+		
+		float t = (float) ((-b-Math.sqrt(d)) / (2*a));
+		
+		if (t < 0)
+			return null;
+		
+		return new Vec3(dist).mul(t).add(pos);
 	}
 
 	public boolean intersectFirst(Geometry g1, Geometry g2) {		
-		if (RenderEngine.screenshot)
-			precision = screenshotPrecision;
+		if (getHitDist(g1) < getHitDist(g2))
+			return true;
 		else 
-			precision = 0.9f;
+			return false;
+	}
+
+	private float getHitDist(Geometry g) {
+		reset();
+		Vec3 p = getHitPos(g);
 		
-		for (float t = RenderEngine.nearPlane; t < RenderEngine.farPlane; t+=precision) {											
-			if (intersectGeometryAt(g2, t))
-				return false;
-			else if (intersectGeometryAt(g1, t))
-				return true;
-		}		
+		if (p == null)
+			return 10000f;
 		
-		return false;
+		return p.squaredDistance(pos);
+	}
+	
+	public void reset() {
+		a = -1;
+		b = -1;
+		c = -1;
+		d = -1;
 	}
 }

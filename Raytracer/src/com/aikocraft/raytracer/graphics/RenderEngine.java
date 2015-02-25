@@ -1,6 +1,5 @@
  package com.aikocraft.raytracer.graphics;
 
-import java.lang.management.LockInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -9,25 +8,27 @@ import com.aikocraft.raytracer.Game;
 
 public class RenderEngine {
 	public static RenderEngine i;
-	public static float nearPlane = 0.1f;
-	public static float farPlane = 15f;
+	public static float nearPlane = 0.0f;
+	public static float farPlane = 50f;
 	public static int npw;
 	public static int nph;
 	
 	public static float fov;
 	
-	public Sphere s1 = new Sphere(new Vec3(-12, 0, 0), 8f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s2 = new Sphere(new Vec3(+12, 0, 0), 8f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s3 = new Sphere(new Vec3(0, -12, 0), 8f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s4 = new Sphere(new Vec3(0, +12, 0), 8f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s5 = new Sphere(new Vec3(0, 0, -12), 8f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s6 = new Sphere(new Vec3(0, 0, +12), 8f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
-	public Sphere s7 = new Sphere(new Vec3(0, 0, 0), 0.5f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s1 = new Sphere(new Vec3(-32, 0, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s2 = new Sphere(new Vec3(+32, 0, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s3 = new Sphere(new Vec3(0, -32, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s4 = new Sphere(new Vec3(0, +32, 0), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s5 = new Sphere(new Vec3(0, 0, -32), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s6 = new Sphere(new Vec3(0, 0, +32), 28f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s7 = new Sphere(new Vec3(0, 0, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s8 = new Sphere(new Vec3(1, 1, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Sphere s9 = new Sphere(new Vec3(-1, -1, 0), 1.0f, new Vec3((float)Math.random(), (float)Math.random(), (float)Math.random()));
 
 	
 	public Plane p1 = new Plane();
 	
-	public Light l1 = new Light(new Vec3(0, 0, 6), 0.001f, 0.05f, 0.0f);
+	public Light l1 = new Light(new Vec3(0, 0, 6), 0.0001f, 0.05f, 0.0f);
 	
 	public static ArrayList<Geometry> geoms = new ArrayList<Geometry>();
 	public static ArrayList<Light> lights = new ArrayList<Light>();
@@ -77,10 +78,10 @@ public class RenderEngine {
 		}
 		
 		while (rt1.getState() != Thread.State.WAITING || rt2.getState() != Thread.State.WAITING 
-				|| rt3.getState() != Thread.State.WAITING || rt4.getState() != Thread.State.WAITING) {
+			|| rt3.getState() != Thread.State.WAITING || rt4.getState() != Thread.State.WAITING) {
 			try {
 				if (screenshot) {
-					Thread.sleep(3000);
+					Thread.sleep(1000);
 					
 					for (int xp = 0; xp < npw/2; xp++)
 						for (int yp = 0; yp < nph/2; yp++)
